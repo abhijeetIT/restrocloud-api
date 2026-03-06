@@ -35,8 +35,10 @@ public class Restaurant {
 
     private String phoneNumber;
 
+    @Builder.Default
     private Boolean isActive = true;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private Role role = Role.RESTAURANT_OWNER;
 

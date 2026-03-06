@@ -53,10 +53,10 @@ This project demonstrates advanced backend concepts like:
 - Add multiple items to an order
 - Automatic total calculation
 - Order status updates:
-    - `PENDING`
-    - `PREPARING`
-    - `COMPLETED`
-    - `CANCELLED`
+  - `PENDING`
+  - `PREPARING`
+  - `COMPLETED`
+  - `CANCELLED`
 
 ### 💳 Billing & Payments
 - Generate invoice
@@ -137,15 +137,51 @@ restrocloud-api/
 
 - JWT-based stateless authentication
 - Role-based access control:
-    - `ADMIN` — Full access
-    - `STAFF` — Limited operational access
+  - `ADMIN` — Full access
+  - `STAFF` — Limited operational access
 - Secured API endpoints via Spring Security filters
 - Custom exception handling using `@ControllerAdvice`
 
 ---
 
 ## 🌐 API Endpoints Overview
-  commig
+
+### Auth
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| POST | `/api/auth/register` | Register a new restaurant |
+| POST | `/api/auth/login` | Login & receive JWT token |
+
+### Tables
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/api/tables` | Get all tables |
+| POST | `/api/tables` | Add a new table |
+| PUT | `/api/tables/{id}` | Update table status |
+| DELETE | `/api/tables/{id}` | Delete a table |
+
+### Menu
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/api/menu` | Get full menu |
+| POST | `/api/menu/category` | Add a category |
+| POST | `/api/menu/item` | Add a menu item |
+| PUT | `/api/menu/item/{id}` | Update item |
+
+### Orders
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| POST | `/api/orders` | Create a new order |
+| GET | `/api/orders/{id}` | Get order details |
+| PUT | `/api/orders/{id}/status` | Update order status |
+
+### Billing
+| Method | Endpoint | Description |
+|:-------|:---------|:------------|
+| GET | `/api/billing/{orderId}` | Generate invoice |
+| PUT | `/api/billing/{id}/pay` | Mark as paid |
+
+---
 
 ## 🚀 Getting Started
 

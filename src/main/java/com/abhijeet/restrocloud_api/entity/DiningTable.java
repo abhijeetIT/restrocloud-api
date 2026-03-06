@@ -24,6 +24,7 @@ public class DiningTable {
 
     private Integer capacity;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private TableStatus status = TableStatus.AVAILABLE;
 

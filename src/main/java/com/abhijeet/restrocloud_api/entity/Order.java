@@ -24,6 +24,7 @@ public class Order {
 
     private Double totalAmount;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus = OrderStatus.PLACED;
 
