@@ -23,13 +23,16 @@ public class Payment {
 
     private Double amount;
 
+    @Column(nullable = true)
     private LocalDateTime paymentTime;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentMethod paymentMethod;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
     @OneToOne(fetch = FetchType.LAZY)

@@ -3,7 +3,10 @@ package com.abhijeet.restrocloud_api.controller;
 import com.abhijeet.restrocloud_api.dto.ApiResponse;
 import com.abhijeet.restrocloud_api.dto.request.OrderItemRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.OrderRequestDTO;
+import com.abhijeet.restrocloud_api.dto.request.PaymentRequestDTO;
+import com.abhijeet.restrocloud_api.dto.request.PaymentStatusRequestDTO;
 import com.abhijeet.restrocloud_api.service.OrderService;
+import com.abhijeet.restrocloud_api.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,9 @@ public class OrderApiController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createOrder(@Valid @RequestBody OrderRequestDTO orderRequestDTO){
@@ -89,6 +95,29 @@ public class OrderApiController {
                 .success(true)
                 .message("Order canceled")
                 .data(null)
+                .build()
+        );
+    }
+
+    @PostMapping("/{orderId}/payments")
+    public ResponseEntity<ApiResponse<?>> processPayment(
+            @PathVariable Long orderId,
+            @RequestBody PaymentRequestDTO paymentRequestDTO) {
+
+        return ResponseEntity.ok(ApiResponse.builder()
+                .message("Payment Generated")
+                .success(true)
+                .data(paymentService.processPayment(orderId,paymentRequestDTO))
+                .build()
+        );
+    }
+
+    @GetMapping("/{orderId}/payments")
+    public ResponseEntity<ApiResponse<?>> getPaymentDetailsByOrderId(@PathVariable Long orderId){
+        return ResponseEntity.ok(ApiResponse.builder()
+                .message("Payment fetched by order id")
+                .success(true)
+                .data(paymentService.getPaymentByOrderId(orderId))
                 .build()
         );
     }

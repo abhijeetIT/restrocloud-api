@@ -97,6 +97,13 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByIdAndRestaurantId(orderId, loggedRestaurantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
+        OrderStatus status = order.getOrderStatus();
+
+        if (status == OrderStatus.CANCELLED
+                || status == OrderStatus.COMPLETED) {
+            throw new IllegalArgumentException("Order already " + status + ", cannot add item now");
+        }
+
         // Find MenuItem
         MenuItem menuItem = menuItemRepository
                 .findByIdAndRestaurantId(requestDTO.getMenuItemId(), loggedRestaurantId)
@@ -172,6 +179,13 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findByIdAndRestaurantId(orderId, loggedRestaurantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
+        OrderStatus status = order.getOrderStatus();
+
+        if (status == OrderStatus.CANCELLED
+                || status == OrderStatus.COMPLETED) {
+            throw new IllegalArgumentException("Order already " + status + ", cannot remove item now");
+        }
+
         // Find OrderItem
         OrderItem orderItem = orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order item not found"));
@@ -191,9 +205,6 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        if(order.getOrderItems().isEmpty()){
-            throw new IllegalArgumentException("No item selected till, you only cancle order Not delete allowed");
-        }
 
         order.setTotalAmount(getOrderTotal(order));
 
