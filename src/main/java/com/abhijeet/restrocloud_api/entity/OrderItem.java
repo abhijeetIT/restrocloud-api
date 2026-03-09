@@ -3,6 +3,8 @@ package com.abhijeet.restrocloud_api.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "order_items")
 @Getter

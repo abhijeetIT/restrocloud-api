@@ -7,6 +7,7 @@ import com.abhijeet.restrocloud_api.entity.Restaurant;
 import com.abhijeet.restrocloud_api.exception.BadRequestException;
 import com.abhijeet.restrocloud_api.exception.DuplicateResourceException;
 import com.abhijeet.restrocloud_api.exception.ResourceNotFoundException;
+import com.abhijeet.restrocloud_api.mapper.DiningTableMapper;
 import com.abhijeet.restrocloud_api.repository.DiningTableRepository;
 import com.abhijeet.restrocloud_api.service.DiningTableService;
 import com.abhijeet.restrocloud_api.service.RestaurantService;
@@ -15,21 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 
 @Service
 public class DiningTableServiceImpl implements DiningTableService {
-
-    private DiningTableResponseDTO mapToResponse(DiningTable diningTable){
-        return DiningTableResponseDTO.builder()
-                .id(diningTable.getId())
-                .tableNumber(diningTable.getTableNumber())
-                .capacity(diningTable.getCapacity())
-                .restaurantId(diningTable.getRestaurant().getId())
-                .status(diningTable.getStatus())
-                .build();
-    }
 
     @Autowired
     private DiningTableRepository diningTableRepository;
@@ -40,6 +30,9 @@ public class DiningTableServiceImpl implements DiningTableService {
     @Autowired
     private RestaurantService restaurantService;
 
+    @Autowired
+    private DiningTableMapper diningTableMapper;
+
 
     @Override
     public DiningTableResponseDTO addTable(DiningTableRequestDTO tableRequestDTO) {
@@ -48,11 +41,11 @@ public class DiningTableServiceImpl implements DiningTableService {
         Restaurant restaurant = restaurantService.getRestaurant(id);
 
         //this cheak the table exists
-        if(diningTableRepository.existsByRestaurantIdAndTableNumber(id, tableRequestDTO.getTableNumber())){
+        if (diningTableRepository.existsByRestaurantIdAndTableNumber(id, tableRequestDTO.getTableNumber())) {
             throw new DuplicateResourceException("Table number already exists");
         }
 
-        return mapToResponse(diningTableRepository.save(DiningTable.builder()
+        return diningTableMapper.mapToDiningTableResponseDTO(diningTableRepository.save(DiningTable.builder()
                 .tableNumber(tableRequestDTO.getTableNumber())
                 .capacity(tableRequestDTO.getCapacity())
                 .restaurant(restaurant)
@@ -67,7 +60,7 @@ public class DiningTableServiceImpl implements DiningTableService {
         List<DiningTable> tables = diningTableRepository.findByRestaurantId(id);
 
         return tables.stream()
-                .map(this::mapToResponse)
+                .map(diningTableMapper::mapToDiningTableResponseDTO)
                 .toList();
 
     }
@@ -82,7 +75,7 @@ public class DiningTableServiceImpl implements DiningTableService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Table not found with number " + tableNumber));
 
-        return mapToResponse(table);
+        return diningTableMapper.mapToDiningTableResponseDTO(table);
     }
 
     @Override
@@ -96,5 +89,37 @@ public class DiningTableServiceImpl implements DiningTableService {
                         new BadRequestException("Table not found in your restaurant"));
 
         diningTableRepository.delete(table);
+    }
+
+    @Override
+    public DiningTableResponseDTO updateTable(Long tableId, DiningTableRequestDTO dto) {
+
+        Long restaurantId = restaurantUtil.getLoggedInRestaurantId();
+
+        // Fetch table of this restaurant
+        DiningTable table = diningTableRepository
+                .findByIdAndRestaurantId(tableId, restaurantId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Table not found in your restaurant"));
+
+        // Check table number conflict
+        if (diningTableRepository.existsByRestaurantIdAndTableNumberAndIdNot(
+                restaurantId, dto.getTableNumber(), tableId)) {
+
+            throw new DuplicateResourceException(
+                    "Table number already exists in your restaurant");
+        }
+
+        // Update fields
+        table.setTableNumber(dto.getTableNumber());
+        table.setCapacity(dto.getCapacity());
+
+        if (dto.getStatus() != null) {
+            table.setStatus(dto.getStatus());
+        }
+
+        DiningTable updated = diningTableRepository.save(table);
+
+        return diningTableMapper.mapToDiningTableResponseDTO(updated);
     }
 }

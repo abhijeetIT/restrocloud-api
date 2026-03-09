@@ -2,7 +2,10 @@ package com.abhijeet.restrocloud_api.controller;
 
 
 import com.abhijeet.restrocloud_api.dto.ApiResponse;
+import com.abhijeet.restrocloud_api.dto.request.RestaurantRequestDTO;
+import com.abhijeet.restrocloud_api.repository.RestaurantRepository;
 import com.abhijeet.restrocloud_api.service.RestaurantService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +19,7 @@ public class RestaurantApiController {
 
     //for fetching current restaurant
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> ResturentDetail(){
+    public ResponseEntity<ApiResponse<?>> resturentDetail(){
              return ResponseEntity.ok(ApiResponse.builder()
                      .success(true)
                      .message("Fetched successfully")
@@ -26,7 +29,7 @@ public class RestaurantApiController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<?>> DeleteResturant(){
+    public ResponseEntity<ApiResponse<?>> deleteResturant(){
 
         restaurantService.deleteRestaurant();
 
@@ -34,6 +37,16 @@ public class RestaurantApiController {
                 .success(true)
                 .message("Deleted Successfully")
                 .data(null)
+                .build()
+        );
+    }
+
+    @PutMapping
+    public ResponseEntity<ApiResponse<?>> updateRestaurantDetails( @Valid @RequestBody RestaurantRequestDTO restaurantRequestDTO){
+        return ResponseEntity.ok(ApiResponse.builder()
+                .success(true)
+                .message("Details Updated successfully")
+                .data(restaurantService.updateRestaurant(restaurantRequestDTO))
                 .build()
         );
     }

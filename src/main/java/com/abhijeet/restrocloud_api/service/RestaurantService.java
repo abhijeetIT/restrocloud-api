@@ -10,4 +10,6 @@ public interface RestaurantService {
      RestaurantResponseDTO getRestaurantDetailByLoggedUser();
      Restaurant getRestaurant(Long id); //for object use in table adding etc.
      void deleteRestaurant();
+
+     RestaurantResponseDTO updateRestaurant(RestaurantRequestDTO restaurantRequestDTO);
 }

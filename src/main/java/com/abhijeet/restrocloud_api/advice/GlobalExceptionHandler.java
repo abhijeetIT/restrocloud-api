@@ -119,6 +119,19 @@ public class GlobalExceptionHandler {
                     );
       }
 
+      @ExceptionHandler(IllegalStateException.class)
+      public ResponseEntity<ApiResponse<?>> handleIllegalStateException(IllegalStateException illegalStateException){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.builder()
+                            .success(false)
+                            .message("Invalid argument: "+illegalStateException.getMessage())
+                            .data(null)
+                            .build()
+                    );
+      }
+
+
       // ================================================================
       // 500 - INTERNAL SERVER ERROR (Fallback / Safety Net)
       // Triggered when:
@@ -133,7 +146,7 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.builder()
                             .success(false)
-                            .message("Internal Server Error")
+                            .message(ex.getLocalizedMessage())
                             .data(null)
                             .build());
       }

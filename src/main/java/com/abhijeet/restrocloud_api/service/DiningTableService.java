@@ -12,4 +12,6 @@ public interface DiningTableService {
     DiningTableResponseDTO getTableByTableNumber(Integer tableNumber);
 
     void deleteById(Long tableId);
+
+    DiningTableResponseDTO updateTable(Long tableId,DiningTableRequestDTO diningTableRequestDTO);
 }

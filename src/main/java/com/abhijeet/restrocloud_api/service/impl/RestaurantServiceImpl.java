@@ -3,8 +3,10 @@ package com.abhijeet.restrocloud_api.service.impl;
 import com.abhijeet.restrocloud_api.dto.request.RestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.dto.response.RestaurantResponseDTO;
 import com.abhijeet.restrocloud_api.entity.Restaurant;
+import com.abhijeet.restrocloud_api.exception.BadRequestException;
 import com.abhijeet.restrocloud_api.exception.DuplicateResourceException;
 import com.abhijeet.restrocloud_api.exception.ResourceNotFoundException;
+import com.abhijeet.restrocloud_api.mapper.RestaurantMapper;
 import com.abhijeet.restrocloud_api.repository.RestaurantRepository;
 import com.abhijeet.restrocloud_api.service.RestaurantService;
 import com.abhijeet.restrocloud_api.util.RestaurantUtil;
@@ -24,18 +26,8 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Autowired
     private RestaurantUtil restaurantUtil;
 
-    private RestaurantResponseDTO mapToResponse(Restaurant restaurant) {
-        return RestaurantResponseDTO.builder()
-                .id(restaurant.getId())
-                .name(restaurant.getName())
-                .email(restaurant.getEmail())
-                .address(restaurant.getAddress())
-                .phoneNumber(restaurant.getPhoneNumber())
-                .isActive(restaurant.getIsActive())
-                .role(restaurant.getRole())
-                .createdAt(restaurant.getCreatedAt())
-                .build();
-    }
+    @Autowired
+    private RestaurantMapper restaurantMapper;
 
     @Override
     public RestaurantResponseDTO signUp(RestaurantRequestDTO dto) {
@@ -54,19 +46,19 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         Restaurant savedRestaurant = restaurantRepo.save(restaurant);
 
-        return mapToResponse(savedRestaurant);
+        return restaurantMapper.mapToRestaurantResponseDTO(savedRestaurant);
     }
 
     @Override
     public RestaurantResponseDTO getRestaurantDetailById(Long id) {
-        return mapToResponse(restaurantRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("Not found with id "+id)));
+        return restaurantMapper.mapToRestaurantResponseDTO(restaurantRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("Not found with id "+id)));
     }
 
     @Override
     public RestaurantResponseDTO getRestaurantDetailByLoggedUser() {
         Long id = restaurantUtil.getLoggedInRestaurantId();
 
-        return mapToResponse(restaurantRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("Not found with id "+id)));
+        return restaurantMapper.mapToRestaurantResponseDTO(restaurantRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException("Not found with id "+id)));
     }
 
     @Override
@@ -82,6 +74,21 @@ public class RestaurantServiceImpl implements RestaurantService {
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id "+id));
 
         restaurantRepo.delete(restaurant);
+    }
+
+    @Override
+    public RestaurantResponseDTO updateRestaurant(RestaurantRequestDTO restaurantRequestDTO) {
+        Long resturantId = restaurantUtil.getLoggedInRestaurantId();
+        Restaurant existingRestaurant = restaurantRepo.findById(resturantId).orElseThrow(()->
+                new ResourceNotFoundException("Something went wrong Log in again to update")
+        );
+
+        existingRestaurant.setName(restaurantRequestDTO.getName());
+        existingRestaurant.setEmail(restaurantRequestDTO.getEmail());
+        existingRestaurant.setAddress(restaurantRequestDTO.getAddress());
+        existingRestaurant.setPhoneNumber(restaurantRequestDTO.getPhoneNumber());
+        return restaurantMapper.mapToRestaurantResponseDTO(restaurantRepo.save(existingRestaurant));
+
     }
 
 

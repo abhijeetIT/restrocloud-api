@@ -14,4 +14,10 @@ public interface DiningTableRepository extends JpaRepository<DiningTable,Long> {
     Optional<DiningTable> findByRestaurantIdAndTableNumber(Long restaurantId, Integer tableNumber);
 
     Optional<DiningTable> findByIdAndRestaurantId(Long tableId, Long restaurantId); //for deletion
+
+    boolean existsByRestaurantIdAndTableNumberAndIdNot(
+            Long restaurantId,
+            Integer tableNumber,
+            Long id
+    );//Check if a table with the same tableNumber already exists in this restaurant, except the current table.
 }

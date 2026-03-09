@@ -51,4 +51,16 @@ public class DiningTableApiController {
                 .data(null)
                 .build());
     }
+
+    @PutMapping("/{tableId}")
+    public ResponseEntity<ApiResponse<?>> updateTable(@PathVariable Long tableId, @RequestBody DiningTableRequestDTO diningTableRequestDTO) {
+
+        return ResponseEntity.ok(
+                ApiResponse.builder()
+                        .success(true)
+                        .message("Table updated successfully")
+                        .data(diningTableService.updateTable(tableId, diningTableRequestDTO))
+                        .build()
+        );
+    }
 }
