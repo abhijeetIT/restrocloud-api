@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,7 +24,6 @@ public class SecurityConfig {
     private final RestaurantDetailsService restaurantDetailsService;
     private final JwtFilter jwtFilter;
 
-    // ✅ Constructor Injection (IMPORTANT)
     public SecurityConfig(RestaurantDetailsService restaurantDetailsService, JwtFilter jwtFilter) {
         this.restaurantDetailsService = restaurantDetailsService;
         this.jwtFilter = jwtFilter;
@@ -33,9 +33,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(Customizer.withDefaults())                          // ✅ ADD 1: enable CORS
+
                 .csrf(csrf -> csrf.disable())
 
-                // 🔥 VERY IMPORTANT for JWT
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -47,7 +48,6 @@ public class SecurityConfig {
 
                 .authenticationProvider(authenticationProvider())
 
-                // Correct way to add filter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

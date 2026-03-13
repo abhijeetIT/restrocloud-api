@@ -5,12 +5,15 @@ import com.abhijeet.restrocloud_api.dto.request.OrderItemRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.OrderRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.PaymentRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.PaymentStatusRequestDTO;
+import com.abhijeet.restrocloud_api.enums.OrderStatus;
 import com.abhijeet.restrocloud_api.service.OrderService;
 import com.abhijeet.restrocloud_api.service.PaymentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -38,6 +41,21 @@ public class OrderApiController {
                 .message("Order Fetched")
                 .success(true)
                 .data(orderService.getOrderById(orderId))
+                .build()
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<?>> orders(@RequestParam(defaultValue = "0") int currentPage,
+                                                 @RequestParam(defaultValue = "10") int size,
+                                                 @RequestParam(required = false) OrderStatus status,
+                                                 @RequestParam(required = false) LocalDate startDate,
+                                                 @RequestParam(required = false) LocalDate endDate){
+
+        return ResponseEntity.ok(ApiResponse.builder()
+                .message("Orders fetched successfully")
+                .success(true)
+                .data(orderService.getOrders(currentPage,size,status,startDate,endDate))
                 .build()
         );
     }
@@ -121,4 +139,6 @@ public class OrderApiController {
                 .build()
         );
     }
+
+
 }

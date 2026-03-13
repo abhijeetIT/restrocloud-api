@@ -2,6 +2,7 @@ package com.abhijeet.restrocloud_api.service.impl;
 
 import com.abhijeet.restrocloud_api.dto.request.PaymentRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.PaymentStatusRequestDTO;
+import com.abhijeet.restrocloud_api.dto.response.PageResponseDTO;
 import com.abhijeet.restrocloud_api.dto.response.PaymentResponseDTO;
 import com.abhijeet.restrocloud_api.entity.Order;
 import com.abhijeet.restrocloud_api.entity.Payment;
@@ -14,9 +15,14 @@ import com.abhijeet.restrocloud_api.repository.*;
 import com.abhijeet.restrocloud_api.service.PaymentService;
 import com.abhijeet.restrocloud_api.util.RestaurantUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -154,5 +160,32 @@ public class PaymentServiceImpl implements PaymentService {
                 .map(paymentMapper::mapToResponseDTO)
                 .toList()
                 ;
+    }
+
+    @Override
+    public PageResponseDTO<PaymentResponseDTO> getPaymentsByFilter(int currentPage, int size, PaymentStatus status, LocalDate startDate, LocalDate endDate) {
+        Long loggedInRestaurantId = restaurantUtil.getLoggedInRestaurantId();
+
+        Pageable pageable = PageRequest.of(currentPage,size, Sort.by("paymentTime").descending());
+
+        try{
+            Page<Payment> paymentsPage = paymentRepository.findPaymentsWithFilters(loggedInRestaurantId,status,startDate,endDate,pageable);
+
+            List<PaymentResponseDTO> payments = paymentsPage.getContent()
+                    .stream()
+                    .map(paymentMapper::mapToResponseDTO)
+                    .toList();
+
+            return PageResponseDTO.<PaymentResponseDTO>builder()
+                    .content(payments)
+                    .page(paymentsPage.getNumber())
+                    .size(paymentsPage.getSize())
+                    .totalElements(paymentsPage.getTotalElements())
+                    .totalPages(paymentsPage.getTotalPages())
+                    .last(paymentsPage.isLast())
+                    .build();
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }

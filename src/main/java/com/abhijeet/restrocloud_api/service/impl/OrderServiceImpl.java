@@ -3,6 +3,7 @@ package com.abhijeet.restrocloud_api.service.impl;
 import com.abhijeet.restrocloud_api.dto.request.OrderItemRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.OrderRequestDTO;
 import com.abhijeet.restrocloud_api.dto.response.OrderResponseDTO;
+import com.abhijeet.restrocloud_api.dto.response.PageResponseDTO;
 import com.abhijeet.restrocloud_api.entity.DiningTable;
 import com.abhijeet.restrocloud_api.entity.MenuItem;
 import com.abhijeet.restrocloud_api.entity.Order;
@@ -18,9 +19,15 @@ import com.abhijeet.restrocloud_api.util.RestaurantUtil;
 import jakarta.transaction.Transactional;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -249,5 +256,33 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.CANCELLED);
 
         orderRepository.save(order);
+    }
+
+    @Override
+    public PageResponseDTO<OrderResponseDTO> getOrders(int page, int size, OrderStatus status, LocalDate startDate, LocalDate endDate) {
+        Long loggedRestaurantId = restaurantUtil.getLoggedInRestaurantId();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        try {
+            Page<Order> orderPage = orderRepository.findOrdersWithFilters(loggedRestaurantId, status, startDate, endDate, pageable);
+
+            List<OrderResponseDTO> orders = orderPage.getContent()
+                    .stream()
+                    .map(orderMapper::mapOrderResponseDTO)
+                    .toList();
+
+            return PageResponseDTO.<OrderResponseDTO>builder()
+                    .content(orders)
+                    .page(orderPage.getNumber())
+                    .size(orderPage.getSize())
+                    .totalElements(orderPage.getTotalElements())
+                    .totalPages(orderPage.getTotalPages())
+                    .last(orderPage.isLast())
+                    .build();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 }
