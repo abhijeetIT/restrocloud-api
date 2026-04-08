@@ -1,9 +1,11 @@
 package com.abhijeet.restrocloud_api.service;
 
+import com.abhijeet.restrocloud_api.dto.request.PasswordChangeDTO;
 import com.abhijeet.restrocloud_api.dto.request.RestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.UpdateRestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.dto.response.RestaurantResponseDTO;
 import com.abhijeet.restrocloud_api.entity.Restaurant;
+import org.apache.catalina.startup.PasswdUserDatabase;
 
 public interface RestaurantService {
      RestaurantResponseDTO signUp(RestaurantRequestDTO dto);
@@ -13,4 +15,6 @@ public interface RestaurantService {
      void deleteRestaurant();
 
      RestaurantResponseDTO updateRestaurant(UpdateRestaurantRequestDTO updateRestaurantRequestDTO);
+
+     Boolean changePassword(PasswordChangeDTO passwordChangeDTO);
 }

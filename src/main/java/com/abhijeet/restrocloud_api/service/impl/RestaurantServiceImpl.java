@@ -1,5 +1,6 @@
 package com.abhijeet.restrocloud_api.service.impl;
 
+import com.abhijeet.restrocloud_api.dto.request.PasswordChangeDTO;
 import com.abhijeet.restrocloud_api.dto.request.RestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.dto.request.UpdateRestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.dto.response.RestaurantResponseDTO;
@@ -94,6 +95,18 @@ public class RestaurantServiceImpl implements RestaurantService {
         existingRestaurant.setPhoneNumber(updateRestaurantRequestDTO.getPhoneNumber());
         return restaurantMapper.mapToRestaurantResponseDTO(restaurantRepo.save(existingRestaurant));
 
+    }
+
+    @Override
+    public Boolean changePassword(PasswordChangeDTO passwordChangeDTO) {
+        Restaurant existingRestaurant = restaurantRepo.findByEmail(passwordChangeDTO.getEmail()).orElseThrow(()->
+                new ResourceNotFoundException("Something went wrong Log in again to update")
+        );
+
+        existingRestaurant.setPassword(passwordEncoder.encode(passwordChangeDTO.getPassword()));
+
+        restaurantRepo.save(existingRestaurant);
+        return true;
     }
 
 
