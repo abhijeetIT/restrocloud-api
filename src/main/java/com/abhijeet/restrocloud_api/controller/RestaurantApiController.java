@@ -3,6 +3,7 @@ package com.abhijeet.restrocloud_api.controller;
 
 import com.abhijeet.restrocloud_api.dto.ApiResponse;
 import com.abhijeet.restrocloud_api.dto.request.RestaurantRequestDTO;
+import com.abhijeet.restrocloud_api.dto.request.UpdateRestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.repository.RestaurantRepository;
 import com.abhijeet.restrocloud_api.service.RestaurantService;
 import jakarta.validation.Valid;
@@ -35,18 +36,18 @@ public class RestaurantApiController {
 
         return ResponseEntity.ok(ApiResponse.builder()
                 .success(true)
-                .message("Deleted Successfully")
+                .message("Your account are in going to be deleted after 15days . it is for data protection. want id back so contact us")
                 .data(null)
                 .build()
         );
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<?>> updateRestaurantDetails( @Valid @RequestBody RestaurantRequestDTO restaurantRequestDTO){
+    public ResponseEntity<ApiResponse<?>> updateRestaurantDetails( @Valid @RequestBody UpdateRestaurantRequestDTO updateRestaurantRequestDTO){
         return ResponseEntity.ok(ApiResponse.builder()
                 .success(true)
                 .message("Details Updated successfully")
-                .data(restaurantService.updateRestaurant(restaurantRequestDTO))
+                .data(restaurantService.updateRestaurant(updateRestaurantRequestDTO))
                 .build()
         );
     }

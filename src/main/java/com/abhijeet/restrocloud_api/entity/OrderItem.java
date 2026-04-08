@@ -2,6 +2,8 @@ package com.abhijeet.restrocloud_api.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
 
@@ -28,5 +30,6 @@ public class OrderItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_item_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private MenuItem menuItem;
 }

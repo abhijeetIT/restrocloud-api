@@ -1,6 +1,7 @@
 package com.abhijeet.restrocloud_api.service;
 
 import com.abhijeet.restrocloud_api.dto.request.RestaurantRequestDTO;
+import com.abhijeet.restrocloud_api.dto.request.UpdateRestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.dto.response.RestaurantResponseDTO;
 import com.abhijeet.restrocloud_api.entity.Restaurant;
 
@@ -11,5 +12,5 @@ public interface RestaurantService {
      Restaurant getRestaurant(Long id); //for object use in table adding etc.
      void deleteRestaurant();
 
-     RestaurantResponseDTO updateRestaurant(RestaurantRequestDTO restaurantRequestDTO);
+     RestaurantResponseDTO updateRestaurant(UpdateRestaurantRequestDTO updateRestaurantRequestDTO);
 }

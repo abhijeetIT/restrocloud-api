@@ -82,4 +82,23 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("endDate") LocalDate endDate,
             Pageable pageable
     );
+
+    @Query("""
+       SELECT COALESCE(SUM(p.amount),0) FROM Payment p
+       WHERE p.order.restaurant.id = :restaurantId
+       AND p.paymentStatus = 'PAID'
+       AND DATE(p.paymentTime) = CURRENT_DATE
+       """)
+    Double revenueToday(Long restaurantId);
+
+    @Query("""
+       SELECT COALESCE(SUM(p.amount),0) FROM Payment p
+       WHERE p.order.restaurant.id = :restaurantId
+       AND p.paymentStatus = 'PAID'
+       AND FUNCTION('MONTH', p.paymentTime) = FUNCTION('MONTH', CURRENT_DATE)
+       AND FUNCTION('YEAR', p.paymentTime) = FUNCTION('YEAR', CURRENT_DATE)
+       """)
+    Double revenueThisMonth(Long restaurantId);
+
+
 }

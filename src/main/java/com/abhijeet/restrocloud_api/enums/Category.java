@@ -4,5 +4,10 @@ package com.abhijeet.restrocloud_api.enums;
 public enum Category {
     STARTER,
     MAIN_COURSE,
-    DRINKS
+    DRINKS,
+    DESSERT,
+    SNACK,
+    BREAKFAST,
+    LUNCH,
+    DINNER
 }

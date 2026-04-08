@@ -28,7 +28,7 @@ public class RestaurantDetailsService implements UserDetailsService {
                 );
 
         if (!Boolean.TRUE.equals(restaurant.getIsActive())) {
-            throw new UsernameNotFoundException("Restaurant account is inactive.");
+            throw new UsernameNotFoundException("Restaurant account is inactive/deleted.");
         }
 
         return User.builder()

@@ -240,8 +240,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void cancelOrder(Long orderId) {
 
+        Long loggedRestaurantId = restaurantUtil.getLoggedInRestaurantId();
+
         Order order = orderRepository
-                .findByIdAndRestaurantId(orderId, restaurantUtil.getLoggedInRestaurantId())
+                .findByIdAndRestaurantId(orderId, loggedRestaurantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
 
         OrderStatus status = order.getOrderStatus();
@@ -255,7 +257,14 @@ public class OrderServiceImpl implements OrderService {
 
         order.setOrderStatus(OrderStatus.CANCELLED);
 
+        DiningTable table = diningTableRepository.findByIdAndRestaurantId(order.getTable().getId(),loggedRestaurantId)
+                .orElseThrow(()-> new ResourceNotFoundException("In cancle order a DiningTable not found"));
+
+        table.setStatus(TableStatus.AVAILABLE);
+        diningTableRepository.save(table);
+
         orderRepository.save(order);
+
     }
 
     @Override

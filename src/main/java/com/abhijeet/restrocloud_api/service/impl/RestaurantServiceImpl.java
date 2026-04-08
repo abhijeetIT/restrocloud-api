@@ -1,6 +1,7 @@
 package com.abhijeet.restrocloud_api.service.impl;
 
 import com.abhijeet.restrocloud_api.dto.request.RestaurantRequestDTO;
+import com.abhijeet.restrocloud_api.dto.request.UpdateRestaurantRequestDTO;
 import com.abhijeet.restrocloud_api.dto.response.RestaurantResponseDTO;
 import com.abhijeet.restrocloud_api.entity.Restaurant;
 import com.abhijeet.restrocloud_api.exception.BadRequestException;
@@ -34,6 +35,9 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         if(restaurantRepo.existsByEmailOrPhoneNumber(dto.getEmail(), dto.getPhoneNumber())){
               throw new DuplicateResourceException("Email/PhoneNumber already registered");
+        }
+        if(restaurantRepo.existsByEmailOrPhoneNumber(dto.getEmail(), dto.getPhoneNumber()) && restaurantRepo.findByEmail(dto.getEmail()).get().getIsActive().equals(false)){
+            throw new BadRequestException("Account deleted alredy, Contact us to recover");
         }
 
         Restaurant restaurant = Restaurant.builder()
@@ -73,20 +77,21 @@ public class RestaurantServiceImpl implements RestaurantService {
         Restaurant restaurant = restaurantRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found with id "+id));
 
-        restaurantRepo.delete(restaurant);
+        restaurant.setIsActive(false);
+        restaurantRepo.save(restaurant);
     }
 
     @Override
-    public RestaurantResponseDTO updateRestaurant(RestaurantRequestDTO restaurantRequestDTO) {
+    public RestaurantResponseDTO updateRestaurant(UpdateRestaurantRequestDTO updateRestaurantRequestDTO) {
         Long resturantId = restaurantUtil.getLoggedInRestaurantId();
         Restaurant existingRestaurant = restaurantRepo.findById(resturantId).orElseThrow(()->
                 new ResourceNotFoundException("Something went wrong Log in again to update")
         );
 
-        existingRestaurant.setName(restaurantRequestDTO.getName());
-        existingRestaurant.setEmail(restaurantRequestDTO.getEmail());
-        existingRestaurant.setAddress(restaurantRequestDTO.getAddress());
-        existingRestaurant.setPhoneNumber(restaurantRequestDTO.getPhoneNumber());
+        existingRestaurant.setName(updateRestaurantRequestDTO.getName());
+        existingRestaurant.setEmail(updateRestaurantRequestDTO.getEmail());
+        existingRestaurant.setAddress(updateRestaurantRequestDTO.getAddress());
+        existingRestaurant.setPhoneNumber(updateRestaurantRequestDTO.getPhoneNumber());
         return restaurantMapper.mapToRestaurantResponseDTO(restaurantRepo.save(existingRestaurant));
 
     }
