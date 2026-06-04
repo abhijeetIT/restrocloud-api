@@ -252,7 +252,7 @@ Server runs on: **http://localhost:8080**
 [![Email](https://img.shields.io/badge/Email-abhijeetj4324%40gmail.com-red?style=flat&logo=gmail)](mailto:abhijeetj4324@gmail.com)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-abhijeet--jha19-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/abhijeet-jha19)
 [![GitHub](https://img.shields.io/badge/GitHub-abhijeetIT-black?style=flat&logo=github)](https://github.com/abhijeetIT)
-[![Instagram](https://img.shields.io/badge/Instagram-abhijeet__jha-purple?style=flat&logo=instagram)](https://www.instagram.com/abhijeet_jha)
+[![Instagram](https://img.shields.io/badge/Instagram-_abhijeet_jha_-purple?style=flat&logo=instagram)](https://www.instagram.com/_abhijeet_jha_)
 
 ---
 
