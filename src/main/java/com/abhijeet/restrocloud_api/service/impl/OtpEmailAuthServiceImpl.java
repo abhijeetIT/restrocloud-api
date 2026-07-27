@@ -39,7 +39,7 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // 🔐 OTP generator
+    // OTP generator
     public static String generateOtp() {
         SecureRandom secureRandom = new SecureRandom();
         int otp = 1000 + secureRandom.nextInt(9000);
@@ -54,7 +54,7 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
         String email = request.getEmail();
         String purpose = request.getPurpose().toUpperCase();
 
-        // ✅ FIXED LOGIC
+        // FIXED LOGIC
         if (purpose.equals("SIGNUP")) {
             if (restaurantRepository.existsByEmail(email)) {
                 throw new RuntimeException("Account already exists with this email");
@@ -66,13 +66,13 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
         }
 
         try {
-            // 🔁 Delete old OTP
+            //  Delete old OTP
             otpEmailAuthRepository.deleteByEmail(email);
 
-            // 🔐 Generate OTP
+            //  Generate OTP
             String otp = generateOtp();
 
-            // 🎯 Purpose message
+            //  Purpose message
             String actionText = switch (purpose) {
                 case "SIGNUP" -> "complete your Sign Up";
                 case "FORGOT_PASSWORD" -> "reset your password";
@@ -80,7 +80,7 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
                 default -> "verify your action";
             };
 
-            // 💌 Email HTML
+            // Email HTML
             String html = """
 <html>
 <body style="font-family:Arial;">
@@ -92,12 +92,12 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
 </html>
 """.formatted(actionText, otp);
 
-            // 🔐 Headers
+            //  Headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", brevoApiKey);
 
-            // 📦 Request Body
+            //  Request Body
             Map<String, Object> body = new HashMap<>();
 
             Map<String, String> sender = new HashMap<>();
@@ -128,7 +128,7 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
                 throw new RuntimeException("Failed to send email via Brevo");
             }
 
-            // 💾 Save OTP (hashed)
+            // Save OTP (hashed)
             otpEmailAuthRepository.save(
                     OtpEmailAuth.builder()
                             .email(email)
@@ -141,7 +141,7 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
             return true;
 
         } catch (Exception e) {
-            e.printStackTrace(); // 🔥 IMPORTANT for debugging
+            e.printStackTrace(); // for debugging
             throw new RuntimeException("Error sending OTP: " + e.getMessage());
         }
     }

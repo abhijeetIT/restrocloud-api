@@ -20,7 +20,7 @@ public class JwtService {
     @Value("${jwt.secret}")
     private  String SECRET_KEY;
 
-    // 🔐 Generate Token
+    // Generate Token
     public String generateToken(String email) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, email);
@@ -40,12 +40,12 @@ public class JwtService {
                 .compact();
     }
 
-    // 🔍 Extract Username
+    //  Extract Username
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // 🔍 Validate Token
+    //  Validate Token
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
