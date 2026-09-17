@@ -9,6 +9,8 @@ import com.abhijeet.restrocloud_api.repository.RestaurantRepository;
 import com.abhijeet.restrocloud_api.service.OtpEmailAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
@@ -30,6 +33,9 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Value("${brevo.api.key}")
     private String brevoApiKey;
@@ -54,7 +60,6 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
         String email = request.getEmail();
         String purpose = request.getPurpose().toUpperCase();
 
-        // FIXED LOGIC
         if (purpose.equals("SIGNUP")) {
             if (restaurantRepository.existsByEmail(email)) {
                 throw new RuntimeException("Account already exists with this email");
@@ -66,8 +71,6 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
         }
 
         try {
-            //  Delete old OTP
-            otpEmailAuthRepository.deleteByEmail(email);
 
             //  Generate OTP
             String otp = generateOtp();
@@ -129,14 +132,7 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
             }
 
             // Save OTP (hashed)
-            otpEmailAuthRepository.save(
-                    OtpEmailAuth.builder()
-                            .email(email)
-                            .purpose(purpose)
-                            .otp(passwordEncoder.encode(otp))
-                            .expiresAt(LocalDateTime.now().plusMinutes(2))
-                            .build()
-            );
+             redisTemplate.opsForValue().set("otp:"+email, Objects.requireNonNull(passwordEncoder.encode(otp)),2, TimeUnit.MINUTES);
 
             return true;
 
@@ -151,25 +147,12 @@ public class OtpEmailAuthServiceImpl implements OtpEmailAuthService {
     @Override
     public Boolean verifyOTP(OtpRequest request) {
 
-        Optional<OtpEmailAuth> optional =
-                otpEmailAuthRepository.findByEmail(request.getEmail());
+       String storedHashedOtp = redisTemplate.opsForValue().get("otp:"+request.getEmail());
 
-        if (optional.isEmpty()) {
+        if (storedHashedOtp == null) {
             return false;
         }
 
-        OtpEmailAuth otpEntity = optional.get();
-
-        if (otpEntity.getExpiresAt().isBefore(LocalDateTime.now())) {
-            otpEmailAuthRepository.delete(otpEntity);
-            return false;
-        }
-
-        if (!passwordEncoder.matches(request.getOtp(), otpEntity.getOtp())) {
-            return false;
-        }
-
-        otpEmailAuthRepository.delete(otpEntity);
-        return true;
+        return passwordEncoder.matches(request.getOtp(), storedHashedOtp);
     }
 }
