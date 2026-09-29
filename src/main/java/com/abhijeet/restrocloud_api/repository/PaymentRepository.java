@@ -64,7 +64,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     boolean existsByOrderId(Long orderId);
 
 
-    // Delete payment by order id (with security check in service)
+    // Delete payment by order id -> with security check in service
     void deleteByOrderId(Long orderId);
 
     @Query("""

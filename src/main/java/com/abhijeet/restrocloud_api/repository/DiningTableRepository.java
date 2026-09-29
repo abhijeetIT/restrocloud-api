@@ -19,5 +19,5 @@ public interface DiningTableRepository extends JpaRepository<DiningTable,Long> {
             Long restaurantId,
             Integer tableNumber,
             Long id
-    );//Check if a table with the same tableNumber already exists in this restaurant, except the current table.
+    );//Check if a table with the same tableNumber already exists in this restaurant, except the current table
 }
